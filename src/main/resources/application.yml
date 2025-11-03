@@ -1,1 +1,31 @@
-spring.application.name=dongri
+# application.yml
+
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: local
+
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      # ?? ????? 'validate' ?? 'none'? ?????.
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+# JWT ?? (?? ????? ?? ???? ??)
+jwt:
+  secret: ${JWT_SECRET}
+  token-validity-in-seconds: ${JWT_VALIDITY:86400} # ??? 24??
+
+# Firebase Admin SDK ? ?? ?? (?? ??)
+firebase:
+  service-account-path: ${FIREBASE_KEY_PATH}

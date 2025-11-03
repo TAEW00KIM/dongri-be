@@ -1,4 +1,4 @@
-package com.hufs.dongri.domain;
+package com.hufs.dongri.domain.enums;
 
 public enum GlobalRole {
     ROLE_USER, ROLE_ADMIN
