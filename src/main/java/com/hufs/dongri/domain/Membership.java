@@ -1,5 +1,6 @@
 package com.hufs.dongri.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hufs.dongri.domain.enums.ClubRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,11 +23,13 @@ public class Membership {
     // 어느 유저가
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     // 어느 동아리에
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
+    @JsonBackReference
     private Club club;
 
     // 어떤 역할로 (MEMBER or ADMIN)

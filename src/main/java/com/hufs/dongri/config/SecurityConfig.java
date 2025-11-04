@@ -49,7 +49,6 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        // (기존 설정)
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

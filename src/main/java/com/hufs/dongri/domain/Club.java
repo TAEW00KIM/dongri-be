@@ -1,5 +1,7 @@
 package com.hufs.dongri.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hufs.dongri.domain.enums.ClubCategory;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,9 +43,11 @@ public class Club {
 
     // 1. 이 동아리에 속한 멤버십 목록
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Membership> memberships = new ArrayList<>();
 
     // 2. 이 동아리로 접수된 운영진 신청서 목록
     @OneToMany(mappedBy = "targetClub", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
 }

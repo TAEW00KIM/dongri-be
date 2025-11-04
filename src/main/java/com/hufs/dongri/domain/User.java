@@ -1,5 +1,7 @@
 package com.hufs.dongri.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hufs.dongri.domain.AdminApplication;
 import com.hufs.dongri.domain.Membership;
 import com.hufs.dongri.domain.enums.GlobalRole;
@@ -45,13 +47,13 @@ public class User {
     @Column(nullable = false)
     private UserStatus status;
 
-    //====== 연관관계 매핑 ======//
-
     // 1. 이 유저가 속한 동아리 목록 (Membership을 통해)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Membership> memberships = new ArrayList<>();
 
     // 2. 이 유저가 신청한 운영진 신청서 목록
     @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
 }

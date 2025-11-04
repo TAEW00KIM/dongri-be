@@ -1,5 +1,6 @@
 package com.hufs.dongri.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hufs.dongri.domain.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,11 +19,13 @@ public class AdminApplication {
     // 신청한 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "applicant_user_id")
+    @JsonBackReference
     private User applicant;
 
     // 신청할 동아리
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_club_id")
+    @JsonBackReference
     private Club targetClub;
 
     // 신청 상태

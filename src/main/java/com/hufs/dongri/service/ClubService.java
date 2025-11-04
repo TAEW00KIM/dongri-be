@@ -20,22 +20,33 @@ public class ClubService {
     private final ClubRepository clubRepository;
 
     public List<ClubSummaryDto> getAllClubs() {
-        // 1. DB에서 모든 Club을 찾아서
         return clubRepository.findAll()
                 .stream()
-                // 2. ClubSummaryDto로 변환 (생성자 매핑)
-                .map(ClubSummaryDto::new)
-                // 3. 리스트로 반환
+                .map(club -> new ClubSummaryDto(
+                        club.getId(),
+                        club.getName(),
+                        club.getCategory(),
+                        club.getShortDescription(),
+                        club.getLogoImageUrl(),
+                        club.isRecruiting()
+                ))
                 .collect(Collectors.toList());
     }
 
     public ClubDetailDto getClubById(Long clubId) {
-        // 1. DB에서 ID로 Club을 찾음
         Club club = clubRepository.findById(clubId)
-                // 2. 없으면 404 에러 (EntityNotFoundException 사용)
                 .orElseThrow(() -> new EntityNotFoundException("해당 동아리를 찾을 수 없습니다. ID: " + clubId));
 
-        // 3. ClubDetailDto로 변환하여 반환
-        return new ClubDetailDto(club);
+        return new ClubDetailDto(
+                club.getId(),
+                club.getName(),
+                club.getCategory(),
+                club.getShortDescription(),
+                club.getIntroduction(),
+                club.getActivitySchedule(),
+                club.getFee(),
+                club.isRecruiting(),
+                club.getLogoImageUrl()
+        );
     }
 }

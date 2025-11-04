@@ -6,6 +6,7 @@ import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,7 +34,8 @@ public class ClubController {
     @Operation(summary = "전체 동아리 목록 조회",
             description = "로그인 없이 누구나 전체 동아리 목록을 조회할 수 있습니다. (요약 정보)")
     @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class)))
+            content = @Content(mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = ClubSummaryDto.class))))
     public ResponseEntity<ApiResult<List<ClubSummaryDto>>> getAllClubs() {
         List<ClubSummaryDto> data = clubService.getAllClubs();
         return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "전체 동아리 목록 조회 성공", data));

@@ -7,6 +7,7 @@ import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.MasterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,7 +37,8 @@ public class MasterController {
             description = "승인 대기 중(PENDING)인 학생(@hufs.ac.kr)들의 운영진 승급 신청 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ApplicationDto.class)))),
             @ApiResponse(responseCode = "403", description = "권한 없음")
     })
     public ResponseEntity<ApiResult<List<ApplicationDto>>> getPendingApplications() {
@@ -80,7 +82,8 @@ public class MasterController {
             description = "폼으로 가입하여 승인 대기(PENDING) 중인 공용 계정 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class))),
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = PendingUserDto.class)))),
             @ApiResponse(responseCode = "403", description = "권한 없음")
     })
     public ResponseEntity<ApiResult<List<PendingUserDto>>> getPendingAccounts() {
