@@ -1,8 +1,8 @@
-// ClubController.java
 package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.club.ClubDetailDto;
 import com.hufs.dongri.dto.club.ClubSummaryDto;
+import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,8 +34,9 @@ public class ClubController {
             description = "로그인 없이 누구나 전체 동아리 목록을 조회할 수 있습니다. (요약 정보)")
     @ApiResponse(responseCode = "200", description = "조회 성공",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = List.class)))
-    public ResponseEntity<List<ClubSummaryDto>> getAllClubs() {
-        return ResponseEntity.ok(clubService.getAllClubs());
+    public ResponseEntity<ApiResult<List<ClubSummaryDto>>> getAllClubs() {
+        List<ClubSummaryDto> data = clubService.getAllClubs();
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "전체 동아리 목록 조회 성공", data));
     }
 
     @GetMapping("/{clubId}")
@@ -45,9 +47,10 @@ public class ClubController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClubDetailDto.class))),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리")
     })
-    public ResponseEntity<ClubDetailDto> getClubById(
+    public ResponseEntity<ApiResult<ClubDetailDto>> getClubById(
             @Parameter(description = "조회할 동아리의 ID") @PathVariable Long clubId
     ) {
-        return ResponseEntity.ok(clubService.getClubById(clubId));
+        ClubDetailDto data = clubService.getClubById(clubId);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "동아리 상세 조회 성공", data));
     }
 }

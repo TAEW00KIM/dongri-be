@@ -1,9 +1,9 @@
-// AuthController.java
 package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.auth.LoginRequestDto;
 import com.hufs.dongri.dto.auth.SignUpRequestDto;
 import com.hufs.dongri.dto.auth.TokenResponseDto;
+import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,8 +35,9 @@ public class AuthController {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = Long.class))),
             @ApiResponse(responseCode = "400", description = "가입 실패 (이메일 중복 또는 @hufs.ac.kr 시도)")
     })
-    public ResponseEntity<Long> signUp(@RequestBody SignUpRequestDto requestDto) {
-        return ResponseEntity.ok(authService.signUp(requestDto));
+    public ResponseEntity<ApiResult<Long>> signUp(@RequestBody SignUpRequestDto requestDto) {
+        Long userId = authService.signUp(requestDto);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "가입 신청이 완료되었습니다.", userId));
     }
 
     @PostMapping("/login")
@@ -47,7 +49,8 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "로그인 실패 (자격 증명 오류)"),
             @ApiResponse(responseCode = "403", description = "승인 대기 중인 계정")
     })
-    public ResponseEntity<TokenResponseDto> login(@RequestBody LoginRequestDto requestDto) {
-        return ResponseEntity.ok(authService.login(requestDto));
+    public ResponseEntity<ApiResult<TokenResponseDto>> login(@RequestBody LoginRequestDto requestDto) {
+        TokenResponseDto token = authService.login(requestDto);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "로그인 성공", token));
     }
 }

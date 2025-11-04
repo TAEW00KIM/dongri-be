@@ -1,7 +1,7 @@
-// ApplicationController.java
 package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.application.ApplicationRequestDto;
+import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.ApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/applications")
 @RequiredArgsConstructor
 @Tag(name = "3. Application (학생 운영진 신청)", description = "학생(@hufs.ac.kr)이 동아리 운영진(ADMIN) 권한을 신청하는 API")
-@SecurityRequirement(name = "Authorization") // 이 컨트롤러의 모든 API는 JWT 인증 필요
+@SecurityRequirement(name = "Authorization")
 public class ApplicationController {
 
     private final ApplicationService applicationService;
 
     @PostMapping
-    @PreAuthorize("hasRole('USER')") // ROLE_USER만 신청 가능
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "학생 운영진 권한 승급 신청",
             description = "학생 유저(USER)가 특정 동아리의 운영진(ADMIN)이 되기 위해 승급 신청을 합니다.")
     @ApiResponses(value = {
@@ -36,8 +37,8 @@ public class ApplicationController {
             @ApiResponse(responseCode = "403", description = "권한 없음 (USER가 아님)"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리")
     })
-    public ResponseEntity<String> applyForAdmin(@RequestBody ApplicationRequestDto dto) {
+    public ResponseEntity<ApiResult<Void>> applyForAdmin(@RequestBody ApplicationRequestDto dto) {
         applicationService.applyForAdmin(dto);
-        return ResponseEntity.ok("운영진 승급 신청이 완료되었습니다.");
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "운영진 승급 신청이 완료되었습니다."));
     }
 }
