@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -24,4 +26,12 @@ import org.springframework.context.annotation.Configuration;
         in = SecuritySchemeIn.HEADER       // 헤더에 위치함
 )
 public class OpenApiConfig {
+
+    @Bean
+    public GroupedOpenApi publicApi() {
+        return GroupedOpenApi.builder()
+                .group("v1-definition")
+                .pathsToMatch("/api/**") // 핵심: /api/ 로 시작하는 경로만 스캔
+                .build();
+    }
 }
