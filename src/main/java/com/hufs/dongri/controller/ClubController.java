@@ -1,5 +1,6 @@
 package com.hufs.dongri.controller;
 
+import com.hufs.dongri.domain.enums.ClubCategory;
 import com.hufs.dongri.dto.club.ClubDetailDto;
 import com.hufs.dongri.dto.club.ClubSummaryDto;
 import com.hufs.dongri.global.exception.ErrorResponse;
@@ -16,10 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,14 +30,18 @@ public class ClubController {
     private final ClubService clubService;
 
     @GetMapping
-    @Operation(summary = "전체 동아리 목록 조회",
-            description = "로그인 없이 누구나 전체 동아리 목록을 조회할 수 있습니다. (요약 정보)")
+    @Operation(summary = "전체 동아리 목록 조회 (필터/검색)", // 3. Operation 요약 수정
+            description = "로그인 없이 누구나 전체 동아리 목록을 조회할 수 있습니다. (필터링/검색 포함)")
     @ApiResponse(responseCode = "200", description = "조회 성공")
-    public ResponseEntity<ApiResult<List<ClubSummaryDto>>> getAllClubs() {
-        List<ClubSummaryDto> data = clubService.getAllClubs();
-        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "전체 동아리 목록 조회 성공", data));
+    public ApiResult<List<ClubSummaryDto>> getAllClubs(
+            @Parameter(description = "카테고리 필터") @RequestParam(required = false) ClubCategory category,
+            @Parameter(description = "모집 중 여부 필터") @RequestParam(required = false) Boolean isRecruiting,
+            @Parameter(description = "검색 키워드") @RequestParam(required = false) String search
+    ) {
+        // 5. 서비스로 파라미터 전달
+        List<ClubSummaryDto> data = clubService.getAllClubs(category, isRecruiting, search);
+        return ApiResult.success(HttpStatus.OK.value(), "전체 동아리 목록 조회 성공", data);
     }
-
     @GetMapping("/{clubId}")
     @Operation(summary = "특정 동아리 상세 조회",
             description = "로그인 없이 누구나 특정 동아리의 상세 정보를 조회할 수 있습니다.")

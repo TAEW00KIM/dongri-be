@@ -50,4 +50,9 @@ public class Club {
     @OneToMany(mappedBy = "targetClub", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
+
+    // 3. 이 동아리로 접수된 회원 가입 신청서 목록
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<JoinApplication> joinApplications = new ArrayList<>();
 }

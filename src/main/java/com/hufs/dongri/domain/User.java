@@ -56,4 +56,9 @@ public class User {
     @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
+
+    // 3. 유저가 신청한 회원가입 신청서 목록
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<JoinApplication> joinApplications = new ArrayList<>();
 }
