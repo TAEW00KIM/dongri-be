@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,15 +30,15 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "폼 회원 가입 (공용 계정용)",
-            description = "동아리 공용 계정(non-@hufs.ac.kr)이 가입을 '신청'합니다. MASTER의 승인이 필요합니다.")
+            description = "동아리 공용 계정(non-@example.com)이 가입을 '신청'합니다. MASTER의 승인이 필요합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "가입 신청 성공 (유저 ID 반환)"),
             @ApiResponse(responseCode = "400", description = "가입 실패 (이메일 중복 또는 @hufs.ac.kr 시도)",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<Long> signUp(@RequestBody SignUpRequestDto requestDto) {
+    public ResponseEntity<ApiResult<Long>> signUp(@RequestBody SignUpRequestDto requestDto) {
         Long userId = authService.signUp(requestDto);
-        return ApiResult.success(HttpStatus.OK.value(), "가입 신청이 완료되었습니다.", userId);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "가입 신청이 완료되었습니다.", userId));
     }
 
     @PostMapping("/login")
@@ -50,8 +51,8 @@ public class AuthController {
             @ApiResponse(responseCode = "403", description = "승인 대기 중인 계정",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<TokenResponseDto> login(@RequestBody LoginRequestDto requestDto) {
+    public ResponseEntity<ApiResult<TokenResponseDto>> login(@RequestBody LoginRequestDto requestDto) {
         TokenResponseDto token = authService.login(requestDto);
-        return ApiResult.success(HttpStatus.OK.value(), "로그인 성공", token);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "로그인 성공", token));
     }
 }

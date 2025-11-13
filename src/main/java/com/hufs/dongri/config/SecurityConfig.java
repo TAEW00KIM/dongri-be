@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/clubs/**").permitAll()
                         .requestMatchers("/api/master/**").hasRole("MASTER")
                         .requestMatchers("/api/applications/**").hasRole("USER")
+                        .requestMatchers("/api/user/**").hasRole("USER")
                         .requestMatchers("/api/operator/**").authenticated()
 
                         .requestMatchers("/oauth2/**").permitAll()

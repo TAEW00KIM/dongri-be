@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,9 +41,9 @@ public class MasterController {
             @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<List<ApplicationDto>> getPendingApplications() {
+    public ResponseEntity<ApiResult<List<ApplicationDto>>> getPendingApplications() {
         List<ApplicationDto> data = masterService.getPendingApplications();
-        return ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청 목록 조회 성공", data);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청 목록 조회 성공", data));
     }
 
     @PostMapping("/applications/{applicationId}/approve")
@@ -56,11 +57,11 @@ public class MasterController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 신청서",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<Void> approveApplication(
+    public ResponseEntity<ApiResult<Void>> approveApplication(
             @Parameter(description = "승인할 신청서의 ID") @PathVariable Long applicationId
     ) {
         masterService.approveApplication(applicationId);
-        return ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청을 승인했습니다.");
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청을 승인했습니다."));
     }
 
     @PostMapping("/applications/{applicationId}/reject")
@@ -74,12 +75,12 @@ public class MasterController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 신청서",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<Void> rejectApplication(
+    public ResponseEntity<ApiResult<Void>> rejectApplication(
             @Parameter(description = "거절할 신청서의 ID") @PathVariable Long applicationId,
             @RequestBody RejectDto dto
     ) {
         masterService.rejectApplication(applicationId, dto);
-        return ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청을 거절했습니다.");
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "학생 승급 신청을 거절했습니다."));
     }
 
     @GetMapping("/accounts/pending")
@@ -90,9 +91,9 @@ public class MasterController {
             @ApiResponse(responseCode = "403", description = "권한 없음",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<List<PendingUserDto>> getPendingAccounts() {
+    public ResponseEntity<ApiResult<List<PendingUserDto>>> getPendingAccounts() {
         List<PendingUserDto> data = masterService.getPendingAccounts();
-        return ApiResult.success(HttpStatus.OK.value(), "공용 계정 승인 대기 목록 조회 성공", data);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "공용 계정 승인 대기 목록 조회 성공", data));
     }
 
     @PostMapping("/accounts/{userId}/approve")
@@ -106,11 +107,11 @@ public class MasterController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자 또는 동아리",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<Void> approveClubAccount(
+    public ResponseEntity<ApiResult<Void>> approveClubAccount(
             @Parameter(description = "승인할 계정의 ID") @PathVariable Long userId,
             @Parameter(description = "ADMIN으로 임명할 동아리 ID") @RequestParam Long clubId
     ) {
         masterService.approveClubAccount(userId, clubId);
-        return ApiResult.success(HttpStatus.OK.value(), "계정 승인 및 운영진 임명 완료");
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "계정 승인 및 운영진 임명 완료"));
     }
 }

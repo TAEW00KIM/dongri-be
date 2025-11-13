@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,8 +45,8 @@ public class ApplicationController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ApiResult<Void> applyForAdmin(@RequestBody ApplicationRequestDto dto) {
+    public ResponseEntity<ApiResult<Void>> applyForAdmin(@RequestBody ApplicationRequestDto dto) {
         applicationService.applyForAdmin(dto);
-        return ApiResult.success(HttpStatus.OK.value(), "운영진 승급 신청이 완료되었습니다.");
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "운영진 승급 신청이 완료되었습니다."));
     }
 }
