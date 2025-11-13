@@ -7,9 +7,11 @@ import com.hufs.dongri.domain.enums.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface JoinApplicationRepository extends JpaRepository<JoinApplication, Long> {
     boolean existsByUserAndClubAndStatus(User user, Club club, ApplicationStatus status);
 
-    // List<JoinApplication> findByClubAndStatus(Club club, ApplicationStatus status);
+    List<JoinApplication> findByClubAndStatus(Club club, ApplicationStatus status);
 }

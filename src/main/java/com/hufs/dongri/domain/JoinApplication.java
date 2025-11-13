@@ -3,14 +3,12 @@ package com.hufs.dongri.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hufs.dongri.domain.enums.ApplicationStatus;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "join_applications")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class JoinApplication {
 

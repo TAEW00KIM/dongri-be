@@ -1,3 +1,4 @@
+// taew00kim/dongri-be/dongri-be-8ef3c4334ad21e8f57b992cacd3c3f95e25c7626/src/main/java/com/hufs/dongri/config/SecurityConfig.java
 package com.hufs.dongri.config;
 
 import com.hufs.dongri.config.handler.OAuth2LoginFailureHandler;
@@ -7,7 +8,9 @@ import com.hufs.dongri.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; // 1. HttpMethod import 추가
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,6 +48,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -57,6 +61,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/clubs/**").permitAll()
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         .requestMatchers("/api/master/**").hasRole("MASTER")
                         .requestMatchers("/api/applications/**").hasRole("USER")
                         .requestMatchers("/api/user/**").hasRole("USER")
@@ -64,7 +71,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/oauth2/**").permitAll()
 
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated() // 3. 이 규칙은 맨 뒤에 유지
                 )
 
                 .oauth2Login(oauth2 -> oauth2
