@@ -1,5 +1,6 @@
 package com.hufs.dongri.config.jwt;
 
+import com.hufs.dongri.dto.oauth.CustomOAuth2User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -36,14 +37,22 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
 
-        // 3. GlobalRole을 "roles" 클레임으로 저장
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        String subject;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomOAuth2User) {
+            subject = ((CustomOAuth2User) principal).getEmail();
+        } else {
+            subject = authentication.getName();
+        }
+
         return Jwts.builder()
-                .setSubject(authentication.getName()) // email
-                .claim("roles", authorities) // 예: "ROLE_USER" 또는 "ROLE_MASTER"
+                .setSubject(subject) // 4. "이메일"이 subject로 설정됨
+                .claim("roles", authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();

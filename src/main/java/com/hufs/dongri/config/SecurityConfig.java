@@ -1,4 +1,3 @@
-// taew00kim/dongri-be/dongri-be-8ef3c4334ad21e8f57b992cacd3c3f95e25c7626/src/main/java/com/hufs/dongri/config/SecurityConfig.java
 package com.hufs.dongri.config;
 
 import com.hufs.dongri.config.handler.OAuth2LoginFailureHandler;
@@ -8,9 +7,8 @@ import com.hufs.dongri.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // 1. HttpMethod import 추가
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,6 +18,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +31,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
@@ -48,7 +50,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults())
+                // 3. 이 Bean이 모든 CORS 처리를 하도록 설정 (WebConfig 필요 없음)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
@@ -61,25 +64,17 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/clubs/**").permitAll()
-
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         .requestMatchers("/api/master/**").hasRole("MASTER")
                         .requestMatchers("/api/applications/**").hasRole("USER")
                         .requestMatchers("/api/user/**").hasRole("USER")
-                        .requestMatchers("/api/operator/**").authenticated()
-
+                        .requestMatchers("/api/operator/**").authenticated() // 5. OPTIONS는 corsSource가, 나머진 여기서 처리
                         .requestMatchers("/oauth2/**").permitAll()
-
-                        .anyRequest().authenticated() // 3. 이 규칙은 맨 뒤에 유지
+                        .anyRequest().authenticated()
                 )
 
                 .oauth2Login(oauth2 -> oauth2
-                        // 1. 인증 성공 후 우리 핸들러 호출
                         .successHandler(oAuth2LoginSuccessHandler)
-                        // 2. 인증 실패 후 우리 핸들러 호출
                         .failureHandler(oAuth2LoginFailureHandler)
-                        // 3. 콜백 엔드포인트 이후 사용자 정보를 가져올 때 사용할 서비스 지정
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
@@ -88,5 +83,24 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // 6. 스웨거(8080)와 프론트(3000) 둘 다 허용 (잘 되어 있음)
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
+        // 7. 모든 메소드 허용 (OPTIONS 포함)
+        configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        // 8. 모든 헤더 허용
+        configuration.setAllowedHeaders(List.of("*"));
+        // 9. 자격증명 허용
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // 10. "모든 경로"에 이 설정을 적용
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }

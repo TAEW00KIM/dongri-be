@@ -1,9 +1,13 @@
 package com.hufs.dongri.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hufs.dongri.domain.enums.ClubRole;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "memberships",
@@ -38,4 +42,9 @@ public class Membership {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ClubRole clubRole;
+
+    // 이 멤버가 작성한 공지/일정 목록
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Notice> authoredNotices = new ArrayList<>();
 }

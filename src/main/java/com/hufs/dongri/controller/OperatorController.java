@@ -2,6 +2,7 @@ package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.application.RejectDto;
 import com.hufs.dongri.dto.join.JoinApplicationDto;
+import com.hufs.dongri.dto.notice.NoticeRequestDto;
 import com.hufs.dongri.global.exception.ErrorResponse;
 import com.hufs.dongri.global.response.ApiResult;
 import com.hufs.dongri.service.OperatorService;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,5 +79,23 @@ public class OperatorController {
     ) {
         operatorService.rejectJoinApplication(clubId, applicationId, dto);
         return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "가입 신청을 거절했습니다."));
+    }
+
+    // 3. (추가) 공지/일정 등록 API
+    @PostMapping("/notices")
+    @Operation(summary = "[UC-008] 동아리 공지/일정 등록",
+            description = "운영진이 본인 동아리에 공지사항(NOTICE) 또는 일정(EVENT)을 등록합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "등록 성공"),
+            @ApiResponse(responseCode = "400", description = "입력값 오류 (제목, 타입 등)"),
+            @ApiResponse(responseCode = "403", description = "해당 동아리 운영진이 아님"),
+            @ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음")
+    })
+    public ResponseEntity<ApiResult<Void>> createNotice(
+            @Parameter(description = "관리할 동아리 ID") @PathVariable Long clubId,
+            @RequestBody @Valid NoticeRequestDto dto // @Valid로 DTO 유효성 검사
+    ) {
+        operatorService.createNotice(clubId, dto);
+        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "공지/일정이 등록되었습니다."));
     }
 }

@@ -1,13 +1,11 @@
 package com.hufs.dongri.service;
 
-import com.hufs.dongri.domain.Club;
-import com.hufs.dongri.domain.JoinApplication;
-import com.hufs.dongri.domain.Membership;
-import com.hufs.dongri.domain.User;
+import com.hufs.dongri.domain.*;
 import com.hufs.dongri.domain.enums.ApplicationStatus;
 import com.hufs.dongri.domain.enums.ClubRole;
 import com.hufs.dongri.dto.application.RejectDto;
 import com.hufs.dongri.dto.join.JoinApplicationDto;
+import com.hufs.dongri.dto.notice.NoticeRequestDto;
 import com.hufs.dongri.global.exception.EntityNotFoundException;
 import com.hufs.dongri.global.util.SecurityUtil;
 import com.hufs.dongri.repository.*;
@@ -28,6 +26,7 @@ public class OperatorService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final MembershipRepository membershipRepository;
+    private final NoticeRepository noticeRepository;
 
     /**
      * (UC-007) 특정 동아리의 '대기중'인 회원 가입 신청 목록 조회
@@ -91,6 +90,37 @@ public class OperatorService {
         app.setStatus(ApplicationStatus.REJECTED);
         // 5. 거절 사유 저장 (MasterService의 로직과 동일하게)
         app.setReason(dto.getReason());
+    }
+
+    /**
+     * (UC-008) 동아리 공지/일정 등록
+     */
+    @Transactional
+    public void createNotice(Long clubId, NoticeRequestDto dto) {
+        // 1. 보안 검증 (운영진 맞는지) + Club 엔티티 확보
+        Club club = checkIsOperatorAndGetClub(clubId);
+
+        // 2. 현재 로그인한 User 엔티티 확보
+        String userEmail = SecurityUtil.getCurrentUserEmail();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("현재 사용자를 찾을 수 없습니다."));
+
+        // 3. [중요] 글 작성자인 'Membership' 엔티티 확보
+        Membership authorMembership = membershipRepository.findByUserAndClub(user, club)
+                .orElseThrow(() -> new EntityNotFoundException("멤버십 정보를 찾을 수 없습니다."));
+
+        // 4. Notice 엔티티 생성
+        Notice notice = Notice.builder()
+                .club(club)
+                .author(authorMembership)
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .type(dto.getType())
+                .eventDate(dto.getEventDate()) // type이 NOTICE면 null이 들어감 (정상)
+                .build();
+
+        // 5. 저장
+        noticeRepository.save(notice);
     }
 
     // --- private 헬퍼 메소드 ---

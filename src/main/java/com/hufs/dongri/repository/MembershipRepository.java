@@ -8,6 +8,8 @@ import com.hufs.dongri.domain.enums.ClubRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
@@ -15,4 +17,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     boolean existsByUserAndClub(User user, Club club);
 
     boolean existsByUserAndClubAndClubRole(User user, Club club, ClubRole clubRole);
+
+    Optional<Membership> findByUserAndClub(User user, Club club);
 }

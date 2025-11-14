@@ -55,4 +55,9 @@ public class Club {
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<JoinApplication> joinApplications = new ArrayList<>();
+
+    // 4. 이 동아리에 작성된 공지/일정 목록
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Notice> notices = new ArrayList<>();
 }
