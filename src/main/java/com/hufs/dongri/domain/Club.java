@@ -41,22 +41,18 @@ public class Club {
 
     private String logoImageUrl;
 
-    // 1. 이 동아리에 속한 멤버십 목록
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Membership> memberships = new ArrayList<>();
 
-    // 2. 이 동아리로 접수된 운영진 신청서 목록
     @OneToMany(mappedBy = "targetClub", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
 
-    // 3. 이 동아리로 접수된 회원 가입 신청서 목록
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<JoinApplication> joinApplications = new ArrayList<>();
 
-    // 4. 이 동아리에 작성된 공지/일정 목록
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Notice> notices = new ArrayList<>();

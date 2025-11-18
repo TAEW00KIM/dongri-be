@@ -1,6 +1,5 @@
 package com.hufs.dongri.dto.application;
 
-import com.hufs.dongri.domain.AdminApplication;
 import com.hufs.dongri.domain.enums.ApplicationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,3 @@
-// OpenApiConfig.java
 package com.hufs.dongri.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -19,11 +18,11 @@ import org.springframework.context.annotation.Configuration;
         )
 )
 @SecurityScheme(
-        name = "Authorization", // (SecurityConfig의 AUTHORIZATION_HEADER와 일치시킴)
-        type = SecuritySchemeType.HTTP,    // HTTP 타입
-        bearerFormat = "JWT",              // Bearer 토큰 형식
-        scheme = "bearer",                 // 스킴은 "bearer"
-        in = SecuritySchemeIn.HEADER       // 헤더에 위치함
+        name = "Authorization",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer",
+        in = SecuritySchemeIn.HEADER
 )
 public class OpenApiConfig {
 
@@ -31,7 +30,7 @@ public class OpenApiConfig {
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
                 .group("v1-definition")
-                .pathsToMatch("/api/**") // 핵심: /api/ 로 시작하는 경로만 스캔
+                .pathsToMatch("/api/**")
                 .build();
     }
 }

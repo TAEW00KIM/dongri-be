@@ -50,7 +50,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                // 3. 이 Bean이 모든 CORS 처리를 하도록 설정 (WebConfig 필요 없음)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -88,17 +87,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 6. 스웨거(8080)와 프론트(3000) 둘 다 허용 (잘 되어 있음)
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
-        // 7. 모든 메소드 허용 (OPTIONS 포함)
         configuration.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        // 8. 모든 헤더 허용
         configuration.setAllowedHeaders(List.of("*"));
-        // 9. 자격증명 허용
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 10. "모든 경로"에 이 설정을 적용
         source.registerCorsConfiguration("/**", configuration);
 
         return source;

@@ -1,6 +1,8 @@
 package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.user.UserDetailRequestDto;
+import com.hufs.dongri.dto.user.UserMyClubResponse;
+import com.hufs.dongri.dto.user.UserMyInfoResponse;
 import com.hufs.dongri.global.exception.CustomException;
 import com.hufs.dongri.global.exception.code.ErrorCode;
 import com.hufs.dongri.global.response.CustomResponse;
@@ -18,10 +20,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
@@ -37,6 +38,86 @@ public class UserController {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
         return user.getUserId();
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "내 정보 조회 (마이페이지)",
+            description = "현재 로그인한 사용자의 상세 정보(학번, 학과, 권한 등)를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-11-18T15:00:00",
+                      "isSuccess": true,
+                      "code": "COMMON200",
+                      "message": "성공적으로 요청을 수행했습니다.",
+                      "result": {
+                        "userId": 1,
+                        "email": "student@hufs.ac.kr",
+                        "name": "김외대",
+                        "studentId": "202100001",
+                        "major": "컴퓨터공학부",
+                        "globalRole": "ROLE_USER"
+                      }
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "(COMMON401) 인증이 필요합니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class))),
+            @ApiResponse(responseCode = "404", description = "(USER404_1) 사용자를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class)))
+    })
+    public ResponseEntity<CustomResponse<UserMyInfoResponse>> getMyInfo(
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        Long userId = getUserId(user);
+        UserMyInfoResponse myInfo = userService.getMyInfo(userId);
+        return ResponseEntity.ok(CustomResponse.ok(myInfo));
+    }
+
+    @GetMapping("/me/clubs")
+    @Operation(summary = "[UC-006] 내 동아리 목록 조회",
+            description = "현재 로그인한 학생이 가입한 동아리 목록과 동아리 내 역할을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-11-18T15:10:00",
+                      "isSuccess": true,
+                      "code": "COMMON200",
+                      "message": "성공적으로 요청을 수행했습니다.",
+                      "result": [
+                        {
+                          "clubId": 1,
+                          "name": "해무리",
+                          "category": "PERFORMING_ARTS",
+                          "shortDescription": "중앙 풍물패 해무리입니다.",
+                          "logoImageUrl": "https://.../logo1.png",
+                          "myClubRole": "ROLE_ADMIN"
+                        },
+                        {
+                          "clubId": 3,
+                          "name": "Hufspike",
+                          "category": "TEAM_SPORTS",
+                          "shortDescription": "중앙 야구 동아리",
+                          "logoImageUrl": "https://.../logo3.png",
+                          "myClubRole": "ROLE_MEMBER"
+                        }
+                      ]
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "(COMMON401) 인증이 필요합니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class))),
+            @ApiResponse(responseCode = "404", description = "(USER404_1) 사용자를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class)))
+    })
+    public ResponseEntity<CustomResponse<List<UserMyClubResponse>>> getMyClubs(
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        Long userId = getUserId(user);
+        List<UserMyClubResponse> myClubs = userService.getMyClubs(userId);
+        return ResponseEntity.ok(CustomResponse.ok(myClubs));
     }
 
     @PatchMapping("/me/details")

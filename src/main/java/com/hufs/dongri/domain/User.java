@@ -1,9 +1,6 @@
 package com.hufs.dongri.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.hufs.dongri.domain.AdminApplication;
-import com.hufs.dongri.domain.Membership;
 import com.hufs.dongri.domain.enums.GlobalRole;
 import com.hufs.dongri.domain.enums.UserStatus;
 import lombok.Getter;
@@ -28,7 +25,7 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password; // 암호화되어 저장
+    private String password;
 
     @Column(nullable = false)
     private String name;
@@ -41,23 +38,20 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private GlobalRole globalRole; // 시스템 역할 (ROLE_USER, ROLE_MASTER)
+    private GlobalRole globalRole;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status;
 
-    // 1. 이 유저가 속한 동아리 목록 (Membership을 통해)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Membership> memberships = new ArrayList<>();
 
-    // 2. 이 유저가 신청한 운영진 신청서 목록
     @OneToMany(mappedBy = "applicant", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<AdminApplication> applications = new ArrayList<>();
 
-    // 3. 유저가 신청한 회원가입 신청서 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<JoinApplication> joinApplications = new ArrayList<>();

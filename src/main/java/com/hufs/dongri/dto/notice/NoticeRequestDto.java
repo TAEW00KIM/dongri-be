@@ -18,7 +18,7 @@ public class NoticeRequestDto {
     private String content;
 
     @NotNull
-    private NoticeType type; // "NOTICE" 또는 "EVENT"
+    private NoticeType type;
 
-    private LocalDateTime eventDate; // type이 EVENT일 경우
+    private LocalDateTime eventDate;
 }

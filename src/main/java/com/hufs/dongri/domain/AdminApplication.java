@@ -16,24 +16,20 @@ public class AdminApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 신청한 사람
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "applicant_user_id")
     @JsonBackReference
     private User applicant;
 
-    // 신청할 동아리
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_club_id")
     @JsonBackReference
     private Club targetClub;
 
-    // 신청 상태
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ApplicationStatus status; // PENDING, APPROVED, REJECTED
+    private ApplicationStatus status;
 
-    // 신청 사유
     @Column(columnDefinition = "TEXT")
     private String reason;
 }

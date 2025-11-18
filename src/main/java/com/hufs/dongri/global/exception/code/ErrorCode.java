@@ -35,7 +35,18 @@ public enum ErrorCode implements BaseErrorCode {
     APPLICATION_ALREADY_PROCESSED("APP400_2", "이미 처리된 신청서입니다.", HttpStatus.BAD_REQUEST),
 
     // == Operator (운영진) 관련 에러 ==
-    NOT_CLUB_OPERATOR("OPER403_1", "해당 동아리의 운영진이 아닙니다.", HttpStatus.FORBIDDEN);
+    NOT_CLUB_OPERATOR("OPER403_1", "해당 동아리의 운영진이 아닙니다.", HttpStatus.FORBIDDEN),
+    MEMBERSHIP_NOT_FOUND("OPER404_1", "해당 멤버십 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    NOTICE_NOT_FOUND("OPER404_2", "해당 일정(Notice)을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    MEMBER_NOT_IN_CLUB("OPER403_2", "해당 멤버는 이 동아리 소속이 아닙니다.", HttpStatus.FORBIDDEN),
+    NOTICE_NOT_IN_CLUB("OPER403_3", "해당 일정은 이 동아리 소속이 아닙니다.", HttpStatus.FORBIDDEN),
+    NOTICE_IS_NOT_EVENT("OPER400_1", "공지사항(NOTICE)에는 출석을 체크할 수 없습니다. 일정(EVENT)만 가능합니다.", HttpStatus.BAD_REQUEST),
+    FEE_PAYMENT_NOT_FOUND("OPER404_3", "회비 납부 내역을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    FEE_PAYMENT_NOT_IN_CLUB("OPER403_4", "해당 회비 내역은 이 동아리 소속이 아닙니다.", HttpStatus.FORBIDDEN),
+
+    // == Poll(투표) 관련 에러
+    POLL_REQUIRES_MIN_TWO_OPTIONS("POLL400_1", "선택지는 2개 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
+    POLL_DEADLINE_IN_PAST("POLL400_2", "마감 기한은 현재 시간 이후여야 합니다.", HttpStatus.BAD_REQUEST);
 
 
     private final String code;

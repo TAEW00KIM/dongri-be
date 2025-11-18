@@ -7,6 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TokenResponseDto {
 
-    // "Bearer " 접두사를 포함한 JWT
     private String accessToken;
 }

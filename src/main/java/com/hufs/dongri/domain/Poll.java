@@ -1,60 +1,55 @@
 package com.hufs.dongri.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.hufs.dongri.domain.enums.NoticeType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "notices")
+@Table(name = "polls")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class Notice {
+public class Poll {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id")
-    @JsonBackReference
+    @JoinColumn(name = "club_id", nullable = false)
     private Club club;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_membership_id")
-    @JsonBackReference
+    @JoinColumn(name = "author_membership_id", nullable = false)
     private Membership author;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    private LocalDateTime deadline;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NoticeType type;
-
-    @Column
-    private LocalDateTime eventDate;
+    private boolean isAnonymous;
 
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PollOption> options = new ArrayList<>();
+
     @Builder
-    public Notice(Club club, Membership author, String title, String content, NoticeType type, LocalDateTime eventDate) {
+    public Poll(Club club, Membership author, String title, LocalDateTime deadline, boolean isAnonymous) {
         this.club = club;
         this.author = author;
         this.title = title;
-        this.content = content;
-        this.type = type;
-        this.eventDate = eventDate;
+        this.deadline = deadline;
+        this.isAnonymous = isAnonymous;
     }
 }

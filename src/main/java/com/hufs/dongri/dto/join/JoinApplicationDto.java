@@ -9,9 +9,8 @@ public class JoinApplicationDto {
 
     private Long applicationId;
     private ApplicationStatus status;
-    private String reason; // 학생이 작성한 가입 사유
+    private String reason;
 
-    // 신청한 학생 정보
     private Long applicantUserId;
     private String applicantName;
     private String applicantStudentId;

@@ -1,4 +1,3 @@
-// OAuth2LoginFailureHandler.java
 package com.hufs.dongri.config.handler;
 
 import jakarta.servlet.ServletException;
@@ -22,10 +21,8 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String errorCode = "login_failure";
 
-        // [중요] CustomOAuth2UserService에서 던진 예외인지 확인
         if (exception instanceof OAuth2AuthenticationException) {
             OAuth2AuthenticationException oauthEx = (OAuth2AuthenticationException) exception;
-            // "hufs_email_required" 에러 코드 사용
             if ("hufs_email_required".equals(oauthEx.getError().getErrorCode())) {
                 errorCode = "hufs_email_required";
             }
@@ -33,8 +30,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 
         log.warn("OAuth2 로그인 실패: {}", errorCode);
 
-        // 4. 프론트엔드 로그인 페이지로 에러코드와 함께 리디렉션
-        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login") // 👈 [수정] 프론트 로그인 페이지 주소
+        String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/login")
                 .queryParam("error", errorCode)
                 .build()
                 .encode(StandardCharsets.UTF_8)

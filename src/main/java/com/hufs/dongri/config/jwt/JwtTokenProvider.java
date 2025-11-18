@@ -57,7 +57,7 @@ public class JwtTokenProvider {
             subject = authentication.getName();
             com.hufs.dongri.domain.User user = userRepository.findByEmail(subject)
                     .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-            userId = user.getId(); 
+            userId = user.getId();
         }
 
         return Jwts.builder()

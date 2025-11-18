@@ -6,5 +6,5 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class JoinApplicationRequestDto {
-    private String reason; // 가입 신청 사유
+    private String reason;
 }

@@ -1,9 +1,9 @@
 package com.hufs.dongri.repository;
 
-import com.hufs.dongri.domain.Notice;
+import com.hufs.dongri.domain.PollOption;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface NoticeRepository extends JpaRepository<Notice, Long> {
+public interface PollOptionRepository extends JpaRepository<PollOption, Long> {
 }
