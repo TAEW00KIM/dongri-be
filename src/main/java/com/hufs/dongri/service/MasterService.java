@@ -10,7 +10,8 @@ import com.hufs.dongri.domain.enums.UserStatus;
 import com.hufs.dongri.dto.application.ApplicationDto;
 import com.hufs.dongri.dto.application.RejectDto;
 import com.hufs.dongri.dto.master.PendingUserDto;
-import com.hufs.dongri.global.exception.EntityNotFoundException;
+import com.hufs.dongri.global.exception.CustomException;
+import com.hufs.dongri.global.exception.code.ErrorCode;
 import com.hufs.dongri.repository.AdminApplicationRepository;
 import com.hufs.dongri.repository.ClubRepository;
 import com.hufs.dongri.repository.MembershipRepository;
@@ -52,10 +53,10 @@ public class MasterService {
     @Transactional
     public void approveApplication(Long applicationId) {
         AdminApplication app = adminApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new EntityNotFoundException("신청서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.APPLICATION_NOT_FOUND));
 
         if (app.getStatus() != ApplicationStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 신청서입니다.");
+            throw new CustomException(ErrorCode.APPLICATION_ALREADY_PROCESSED);
         }
 
         app.setStatus(ApplicationStatus.APPROVED);
@@ -71,10 +72,10 @@ public class MasterService {
     @Transactional
     public void rejectApplication(Long applicationId, RejectDto dto) {
         AdminApplication app = adminApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new EntityNotFoundException("신청서를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.APPLICATION_NOT_FOUND));
 
         if (app.getStatus() != ApplicationStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 신청서입니다.");
+            throw new CustomException(ErrorCode.APPLICATION_ALREADY_PROCESSED);
         }
 
         app.setStatus(ApplicationStatus.REJECTED);
@@ -97,14 +98,14 @@ public class MasterService {
     @Transactional
     public void approveClubAccount(Long userId, Long clubId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (user.getStatus() != UserStatus.PENDING) {
-            throw new IllegalStateException("이미 처리된 계정입니다.");
+            throw new CustomException(ErrorCode.APPLICATION_ALREADY_PROCESSED);
         }
 
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 동아리를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND));
 
         user.setStatus(UserStatus.ACTIVE);
 

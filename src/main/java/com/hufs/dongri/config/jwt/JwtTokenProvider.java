@@ -1,6 +1,11 @@
 package com.hufs.dongri.config.jwt;
 
+import com.hufs.dongri.domain.User;
 import com.hufs.dongri.dto.oauth.CustomOAuth2User;
+import com.hufs.dongri.global.exception.CustomException;
+import com.hufs.dongri.global.exception.code.ErrorCode;
+import com.hufs.dongri.global.security.AuthenticatedUser;
+import com.hufs.dongri.repository.UserRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +14,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -24,15 +27,16 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
     private final long accessTokenValidityInMilliseconds;
+    private final UserRepository userRepository;
 
-    // 1. Secret Key 및 만료 시간 설정
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
-                            @Value("${jwt.token-validity-in-seconds}") long tokenValidity) {
+                            @Value("${jwt.token-validity-in-seconds}") long tokenValidity,
+                            UserRepository userRepository) {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
         this.accessTokenValidityInMilliseconds = tokenValidity * 1000;
+        this.userRepository = userRepository;
     }
 
-    // 2. JWT 생성
     public String generateToken(Authentication authentication) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
@@ -42,23 +46,29 @@ public class JwtTokenProvider {
                 .collect(Collectors.joining(","));
 
         String subject;
+        Long userId;
+
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof CustomOAuth2User) {
             subject = ((CustomOAuth2User) principal).getEmail();
+            userId = ((CustomOAuth2User) principal).getUserId();
         } else {
             subject = authentication.getName();
+            com.hufs.dongri.domain.User user = userRepository.findByEmail(subject)
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+            userId = user.getId(); 
         }
 
         return Jwts.builder()
-                .setSubject(subject) // 4. "이메일"이 subject로 설정됨
+                .setSubject(subject)
                 .claim("roles", authorities)
+                .claim("userId", userId)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
     }
 
-    // 4. JWT에서 인증 정보 조회
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -71,11 +81,14 @@ public class JwtTokenProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        Long userId = claims.get("userId", Long.class);
+        String email = claims.getSubject();
+
+        AuthenticatedUser principal = new AuthenticatedUser(userId, email, authorities);
+
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
-    // 5. 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

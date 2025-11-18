@@ -16,4 +16,14 @@ public class ClubSummaryDto {
     private String logoImageUrl;
     private boolean isRecruiting;
 
+    public static ClubSummaryDto from(Club club) {
+        return new ClubSummaryDto(
+                club.getId(),
+                club.getName(),
+                club.getCategory(),
+                club.getShortDescription(),
+                club.getLogoImageUrl(),
+                club.isRecruiting()
+        );
+    }
 }

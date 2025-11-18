@@ -1,13 +1,15 @@
-// src/main/java/com/hufs/dongri/controller/JoinApplicationController.java (신규 파일)
 package com.hufs.dongri.controller;
 
 import com.hufs.dongri.dto.join.JoinApplicationRequestDto;
-import com.hufs.dongri.global.exception.ErrorResponse;
-import com.hufs.dongri.global.response.ApiResult;
+import com.hufs.dongri.global.exception.CustomException;
+import com.hufs.dongri.global.exception.code.ErrorCode;
+import com.hufs.dongri.global.response.CustomResponse;
+import com.hufs.dongri.global.security.AuthenticatedUser;
 import com.hufs.dongri.service.JoinApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -17,33 +19,56 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Tag(name = "6. Join Application (학생 회원 가입 신청)", description = "학생(USER)이 동아리에 '회원'으로 가입 신청하는 API")
+@Tag(name = "6. Join Application (학생 회원 가입 신청)", description = "학생(USER)이 동아리에 '회원'으로 가입 신청하는 API (UC-005)")
 @SecurityRequirement(name = "Authorization")
 public class JoinApplicationController {
 
     private final JoinApplicationService joinApplicationService;
+
+    private Long getUserId(AuthenticatedUser user) {
+        if (user == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        return user.getUserId();
+    }
 
     @PostMapping("/clubs/{clubId}/apply")
     @PreAuthorize("hasRole('USER')")
     @Operation(summary = "학생 동아리 회원 가입 신청 (UC-005)",
             description = "학생(USER)이 특정 동아리에 회원 가입을 신청합니다.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "가입 신청 성공"),
-            @ApiResponse(responseCode = "400", description = "중복 신청 (이미 대기 중이거나 가입됨)",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 동아리")
+            @ApiResponse(responseCode = "201", description = "가입 신청 성공",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            examples = @ExampleObject(value = """
+                    { "timestamp": "2025-11-18T14:20:00", "isSuccess": true, "code": "COMMON201", "message": "성공적으로 객체를 생성했습니다.", "result": null }
+                    """))),
+            @ApiResponse(responseCode = "400", description = "(APP409_1) 중복 신청 / (APP409_2) 이미 회원",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomResponse.class),
+                            examples = {
+                                    @ExampleObject(name = "중복 신청", value = """
+                        { "timestamp": "2025-11-18T14:21:00", "isSuccess": false, "code": "APP409_1", "message": "이미 처리 대기 중인 신청서가 존재합니다.", "result": null }
+                        """),
+                                    @ExampleObject(name = "이미 회원", value = """
+                        { "timestamp": "2025-11-18T14:22:00", "isSuccess": false, "code": "APP409_2", "message": "이미 해당 동아리에 가입된 회원입니다.", "result": null }
+                        """)
+                            })),
+            @ApiResponse(responseCode = "404", description = "(CLUB404_1) 존재하지 않는 동아리",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomResponse.class)))
     })
-    public ResponseEntity<ApiResult<Void>> applyToClub(
+    public ResponseEntity<CustomResponse<Void>> applyToClub(
+            @AuthenticationPrincipal AuthenticatedUser user, // (수정) Principal 주입
             @Parameter(description = "가입 신청할 동아리 ID") @PathVariable Long clubId,
             @RequestBody JoinApplicationRequestDto dto
     ) {
-        joinApplicationService.applyToClub(clubId, dto);
-        return ResponseEntity.ok(ApiResult.success(HttpStatus.OK.value(), "동아리 가입 신청이 완료되었습니다."));
+        Long userId = getUserId(user); // (수정) ID 추출
+        joinApplicationService.applyToClub(userId, clubId, dto); // (수정) ID 전달
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(CustomResponse.created(null));
     }
 }

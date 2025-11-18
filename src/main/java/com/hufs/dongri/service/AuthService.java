@@ -1,4 +1,3 @@
-// AuthService.java (수정본)
 package com.hufs.dongri.service;
 
 import com.hufs.dongri.domain.User;
@@ -8,6 +7,8 @@ import com.hufs.dongri.dto.auth.LoginRequestDto;
 import com.hufs.dongri.dto.auth.SignUpRequestDto;
 import com.hufs.dongri.dto.auth.TokenResponseDto;
 import com.hufs.dongri.config.jwt.JwtTokenProvider;
+import com.hufs.dongri.global.exception.CustomException;
+import com.hufs.dongri.global.exception.code.ErrorCode;
 import com.hufs.dongri.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,27 +29,23 @@ public class AuthService {
 
     private static final String HUFS_EMAIL_DOMAIN = "@hufs.ac.kr";
 
-    // [수정] 폼 회원가입 로직
     @Transactional
     public Long signUp(SignUpRequestDto dto) {
 
         if (dto.getEmail().endsWith(HUFS_EMAIL_DOMAIN)) {
-            throw new IllegalArgumentException("학생은 [Google로 로그인]을 이용해주세요.");
+            throw new CustomException(ErrorCode.STUDENT_SHOULD_USE_OAUTH);
         }
 
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new CustomException(ErrorCode.EMAIL_DUPLICATED);
         }
 
         User user = new User();
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-
         user.setName(dto.getEmail());
-
         user.setGlobalRole(GlobalRole.ROLE_USER);
-        user.setStatus(UserStatus.PENDING); // 상태는 '승인 대기'
-
+        user.setStatus(UserStatus.PENDING);
 
         return userRepository.save(user).getId();
     }
