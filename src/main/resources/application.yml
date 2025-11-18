@@ -6,7 +6,7 @@ spring:
     url: ${DATASOURCE_URL}
     username: ${DATASOURCE_USERNAME}
     password: ${DATASOURCE_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
 
   security:
     oauth2:
@@ -27,7 +27,7 @@ spring:
     properties:
       hibernate:
         format_sql: ${SPRING_JPA_FORMAT_SQL:false}
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.MariaDBDialect
 
 jwt:
   secret: ${JWT_SECRET}
