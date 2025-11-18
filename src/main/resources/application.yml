@@ -1,29 +1,39 @@
-# application.yml
-
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 spring:
-  profiles:
-    active: local
-
   datasource:
     url: ${DATASOURCE_URL}
     username: ${DATASOURCE_USERNAME}
     password: ${DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver # MariaDB는 MySQL 드라이버와 호환됩니다.
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${OAUTH_GOOGLE_CLIENT_ID}
+            client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: false
+        format_sql: ${SPRING_JPA_FORMAT_SQL:false}
+        dialect: org.hibernate.dialect.MySQLDialect
 
 jwt:
   secret: ${JWT_SECRET}
-  token-validity-in-seconds: ${JWT_VALIDITY:86400} # ??? 24??
+  token-validity-in-seconds: ${JWT_VALIDITY:86400} # 기본값 24시간
 
-# Firebase Admin SDK ? ?? ?? (?? ??)
-firebase:
-  service-account-path: ${FIREBASE_KEY_PATH}
+springdoc:
+  security:
+    enabled: false
+  handle-exception-response: false

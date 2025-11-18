@@ -46,7 +46,13 @@ public enum ErrorCode implements BaseErrorCode {
 
     // == Poll(투표) 관련 에러
     POLL_REQUIRES_MIN_TWO_OPTIONS("POLL400_1", "선택지는 2개 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
-    POLL_DEADLINE_IN_PAST("POLL400_2", "마감 기한은 현재 시간 이후여야 합니다.", HttpStatus.BAD_REQUEST);
+    POLL_DEADLINE_IN_PAST("POLL400_2", "마감 기한은 현재 시간 이후여야 합니다.", HttpStatus.BAD_REQUEST),
+    NOT_CLUB_MEMBER("POLL403_1", "해당 동아리의 회원이 아닙니다.", HttpStatus.FORBIDDEN),
+    POLL_NOT_FOUND("POLL404_1", "투표를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    POLL_OPTION_NOT_FOUND("POLL404_2", "투표 선택지를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    POLL_NOT_IN_CLUB("POLL403_2", "해당 투표는 이 동아리 소속이 아닙니다.", HttpStatus.FORBIDDEN),
+    POLL_DEADLINE_EXPIRED("POLL400_3", "투표가 마감되었습니다.", HttpStatus.BAD_REQUEST),
+    POLL_ALREADY_VOTED("POLL409_1", "이미 투표에 참여했습니다.", HttpStatus.CONFLICT);
 
 
     private final String code;
