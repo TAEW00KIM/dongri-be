@@ -1,5 +1,6 @@
 package com.hufs.dongri.controller;
 
+import com.hufs.dongri.dto.user.UserCalendarEventDto;
 import com.hufs.dongri.dto.user.UserDetailRequestDto;
 import com.hufs.dongri.dto.user.UserMyClubResponse;
 import com.hufs.dongri.dto.user.UserMyInfoResponse;
@@ -118,6 +119,49 @@ public class UserController {
         Long userId = getUserId(user);
         List<UserMyClubResponse> myClubs = userService.getMyClubs(userId);
         return ResponseEntity.ok(CustomResponse.ok(myClubs));
+    }
+
+    @GetMapping("/me/calendar")
+    @Operation(summary = "[UC-006] 내 캘린더 일정 조회",
+            description = "현재 로그인한 학생이 가입한 모든 동아리의 '일정(EVENT)'을 월별 캘린더 뷰를 위해 모두 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class),
+                            examples = @ExampleObject(value = """
+                    {
+                      "timestamp": "2025-11-18T16:00:00",
+                      "isSuccess": true,
+                      "code": "COMMON200",
+                      "message": "성공적으로 요청을 수행했습니다.",
+                      "result": [
+                        {
+                          "noticeId": 10,
+                          "title": "해무리 정기 공연",
+                          "eventDate": "2025-11-20T18:00:00",
+                          "clubId": 1,
+                          "clubName": "해무리"
+                        },
+                        {
+                          "noticeId": 12,
+                          "title": "Hufspike OB전",
+                          "eventDate": "2025-11-22T13:00:00",
+                          "clubId": 3,
+                          "clubName": "Hufspike"
+                        }
+                      ]
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "(COMMON401) 인증이 필요합니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class))),
+            @ApiResponse(responseCode = "404", description = "(USER404_1) 사용자를 찾을 수 없습니다.",
+                    content = @Content(schema = @Schema(implementation = CustomResponse.class)))
+    })
+    public ResponseEntity<CustomResponse<List<UserCalendarEventDto>>> getMyCalendarEvents(
+            @AuthenticationPrincipal AuthenticatedUser user
+    ) {
+        Long userId = getUserId(user);
+        List<UserCalendarEventDto> events = userService.getMyCalendarEvents(userId);
+        return ResponseEntity.ok(CustomResponse.ok(events));
     }
 
     @PatchMapping("/me/details")

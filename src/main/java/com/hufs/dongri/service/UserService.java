@@ -1,13 +1,17 @@
 package com.hufs.dongri.service;
 
 import com.hufs.dongri.domain.Membership;
+import com.hufs.dongri.domain.Notice;
 import com.hufs.dongri.domain.User;
+import com.hufs.dongri.domain.enums.NoticeType;
+import com.hufs.dongri.dto.user.UserCalendarEventDto;
 import com.hufs.dongri.dto.user.UserDetailRequestDto;
 import com.hufs.dongri.dto.user.UserMyClubResponse;
 import com.hufs.dongri.dto.user.UserMyInfoResponse;
 import com.hufs.dongri.global.exception.CustomException;
 import com.hufs.dongri.global.exception.code.ErrorCode;
 import com.hufs.dongri.repository.MembershipRepository;
+import com.hufs.dongri.repository.NoticeRepository;
 import com.hufs.dongri.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +27,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final MembershipRepository membershipRepository;
+    private final NoticeRepository noticeRepository;
 
     public UserMyInfoResponse getMyInfo(Long userId) {
         User user = userRepository.findById(userId)
@@ -40,6 +45,27 @@ public class UserService {
 
         return memberships.stream()
                 .map(UserMyClubResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserCalendarEventDto> getMyCalendarEvents(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        List<Long> myClubIds = membershipRepository.findByUserIdWithClub(userId)
+                .stream()
+                .map(membership -> membership.getClub().getId())
+                .collect(Collectors.toList());
+
+        if (myClubIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Notice> events = noticeRepository.findByClubIdInAndTypeWithClub(myClubIds, NoticeType.EVENT);
+
+        return events.stream()
+                .map(UserCalendarEventDto::from)
                 .collect(Collectors.toList());
     }
 
